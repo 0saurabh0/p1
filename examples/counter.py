@@ -9,12 +9,12 @@ EVENT_ENTER_STANDBY = "event enter standby"
 
 class CounterModel(Model):
 
-    def __init__(self, ):
-        super(Model).__init__()
-        self.logger = None
-        self.scheduler = None
-        self.count_entrypoint = EntryPoint()
-        self.count_entrypoint.execute = lambda: self.count()
+    # def __init__(self):
+    #     super().__init__()
+    #     self.logger = None
+    #     self.scheduler = None
+    #     self.count_entrypoint = EntryPoint()
+    #     self.count_entrypoint.execute = lambda: self.count()
 
     def reset(self):
         self._counter = 0

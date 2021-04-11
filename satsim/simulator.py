@@ -1,4 +1,6 @@
-from satsim import Composite, InvalidSimulatorState, Logger
+from satsim import InvalidSimulatorState
+from satsim import Logger
+from satsim import Component, Composite
 
 
 class Simulator(Composite):
@@ -15,21 +17,44 @@ class Simulator(Composite):
     ABORTING = 9
 
     def __init__(self):
-        self.logger = Logger()
-
         self.models = []
         self.service = []
 
-    def initialise(self):
-        pass
+        # services
+        self.logger = Logger()
+
+        self.state = self.BUILDING
 
     def publish(self):
-        pass
+        if self.state != self.BUILDING:
+            return
+
+        # TODO: issue global event "Leaving Building" and wait for return
+        self.state = self.PUBLISHING
+
+        # TODO: issue global event "EnterPublishing" and wait for return
+
+        for service in self.services:
+            if service.state == Component.CREATED:
+                service.publish(self)
+                # TODO: call publish on all child components recursevly
+
+        for model in self.models:
+            if model.state == Component.CREATED:
+                model.publish(self)
+                # TODO: call publish on all child components recursevly
+
+        # TODO: issue global event "LeavingPublishing" and wait for return
+        self.state = self.BUILDING
+        # TODO: issue global event "EnterBuilding" and wait for return
 
     def configure(self):
         pass
 
     def connect(self):
+        pass
+
+    def initialise(self):
         pass
 
     def hold(self, immediate=False):
