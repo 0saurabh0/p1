@@ -1,9 +1,22 @@
-from models.basic.composite import Composite
+from satsim import Composite, InvalidSimulatorState, Logger
 
 
 class Simulator(Composite):
 
+    BUILDING = 0
+    CONNECTING = 1
+    INITIALISING = 2
+    STANDBY = 3
+    EXECUTING = 4
+    STORING = 5
+    RESTORING = 6
+    RECONNECTING = 7
+    EXITING = 8
+    ABORTING = 9
+
     def __init__(self):
+        self.logger = Logger()
+
         self.models = []
         self.service = []
 
@@ -41,10 +54,20 @@ class Simulator(Composite):
         pass
 
     def add_model(self, model):
-        pass
+        if self.state not in [
+                self.STANDBY, self.BUILDING,
+                self.CONNECTING, self.INITIALIZING]:
+            raise InvalidSimulatorState()
+        # TODO: check for conflict of name with already added model
+        # TODO: check for conflict of name with already added service
+        self.models.append(model)
 
     def add_service(self, service):
-        pass
+        if self.state not in self.BUILDING:
+            raise InvalidSimulatorState()
+        # TODO: check for conflict of name with already added model
+        # TODO: check for conflict of name with already added service
+        self.services.append(service)
 
     def get_service(self, name):
         pass
