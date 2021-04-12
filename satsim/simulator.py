@@ -1,9 +1,9 @@
 from satsim import InvalidSimulatorState
 from satsim import Logger
-from satsim import Component, Composite
+from satsim import Component, Composite, Publication
 
 
-class Simulator(Composite):
+class Simulator(Composite, Publication):
 
     BUILDING = 0
     CONNECTING = 1
@@ -18,7 +18,7 @@ class Simulator(Composite):
 
     def __init__(self):
         self.models = []
-        self.service = []
+        self.services = []
 
         # services
         self.logger = Logger()
@@ -30,7 +30,7 @@ class Simulator(Composite):
             return
 
         # TODO: issue global event "Leaving Building" and wait for return
-        self.state = self.PUBLISHING
+        #self.state = self.PUBLISHING
 
         # TODO: issue global event "EnterPublishing" and wait for return
 
@@ -49,7 +49,12 @@ class Simulator(Composite):
         # TODO: issue global event "EnterBuilding" and wait for return
 
     def configure(self):
-        pass
+        if self.state != self.BUILDING:
+            return
+
+        # TODO: if called during global event "LeavingBuilding" then return
+
+        # TODO: issue global event "LeavingBuilding" and wait
 
     def connect(self):
         pass
@@ -81,7 +86,7 @@ class Simulator(Composite):
     def add_model(self, model):
         if self.state not in [
                 self.STANDBY, self.BUILDING,
-                self.CONNECTING, self.INITIALIZING]:
+                self.CONNECTING, self.INITIALISING]:
             raise InvalidSimulatorState()
         # TODO: check for conflict of name with already added model
         # TODO: check for conflict of name with already added service

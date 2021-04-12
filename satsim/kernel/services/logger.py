@@ -13,7 +13,7 @@ class Logger(Service):
         pass
 
     def log(self, sender, message, kind=0):
-        pass
+        print("{} | {} | {}".format(kind, sender, message))
 
     def log_info(self, sender, message):
         self.log(sender, message, kind=self.INFORMATION)

@@ -4,27 +4,23 @@
 from satsim import Simulator, Model, EntryPoint
 simulator = Simulator()
 
-EVENT_ENTER_STANDBY = "event enter standby"
-
 
 class CounterModel(Model):
 
-    # def __init__(self):
-    #     super().__init__()
-    #     self.logger = None
-    #     self.scheduler = None
-    #     self.count_entrypoint = EntryPoint()
-    #     self.count_entrypoint.execute = lambda: self.count()
+    def __init__(self, name, description, parent=None):
+        super().__init__(name, description, parent)
+        self.logger = None
+        self.scheduler = None
+        self.counter = 0
+        self.count_entrypoint = EntryPoint("counter entrypoint")
+        self.count_entrypoint.execute = lambda: self.count()
 
     def reset(self):
-        self._counter = 0
+        self.counter = 0
 
     def count(self):
-        self._counter += 1
+        self.counter += 1
         self.logger.log_info(self, "Increase counter")
-
-    def get_counter(self):
-        return self._counter
 
     def _publish(self, receiver):
         receiver.publish_field("counter", "Counter state", self.counter)
