@@ -61,10 +61,13 @@ class Component(Object):
         pass
 
     def get_field(self, full_name):
+        # TODO
         raise NotImplementedError
 
     def get_fields(self):
+        # TODO
         raise NotImplementedError
 
     def get_uuid(self):
+        # TODO
         raise NotImplementedError

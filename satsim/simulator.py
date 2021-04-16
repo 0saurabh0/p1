@@ -22,14 +22,30 @@ class Simulator(Composite, Publication):
 
         # services
         self.logger = Logger()
+        #self.time_keeper = TimeKeeper()
+        #self.scheduluer = Scheduler()
+        #self.event_manager = EventManager()
+        #self.resolver = Resolver()
+        #self.link_registry = LinkRegistry()
 
         self.state = self.BUILDING
 
     def publish(self):
+        """The simulator publish method shall call the `publish()` method of all
+        service and model instances in the component hierarchy that are in
+        `CREATED` state within the simulation.
+        """
+
+        # If simulation is not in `BUILDING` state then return without action
         if self.state != self.BUILDING:
             return
 
+        # If execution of global even `LEAVING_BUILDING` then
+        # return without action
+        #TODO...
+
         # TODO: issue global event "Leaving Building" and wait for return
+
         #self.state = self.PUBLISHING
 
         # TODO: issue global event "EnterPublishing" and wait for return
@@ -42,7 +58,7 @@ class Simulator(Composite, Publication):
         for model in self.models:
             if model.state == Component.CREATED:
                 model.publish(self)
-                # TODO: call publish on all child components recursevly
+                #TODO: call publish on all child components recursevly
 
         # TODO: issue global event "LeavingPublishing" and wait for return
         self.state = self.BUILDING
@@ -62,6 +78,9 @@ class Simulator(Composite, Publication):
     def initialise(self):
         pass
 
+    def run(self):
+        pass
+
     def hold(self, immediate=False):
         pass
 
@@ -72,6 +91,9 @@ class Simulator(Composite, Publication):
         pass
 
     def reconnect(self, root):
+        pass
+
+    def exit(self):
         pass
 
     def abort(self):
@@ -103,37 +125,42 @@ class Simulator(Composite, Publication):
         pass
 
     def get_logger(self):
-        pass
+        return self.logger
 
     def get_time_keeper(self):
+        # TODO
         pass
 
     def get_scheduler(self):
+        # TODO
         pass
 
     def get_event_manager(self):
+        # TODO
         pass
 
     def get_resolver(self):
+        # TODO
         pass
 
     def get_link_registry(self):
+        # TODO
         pass
 
-    def register_factory(self, component_factory):
-        pass
-
-    def create_instance(self, uuid, name, description, parent):
-        pass
-
-    def get_factory(self, uuid):
-        pass
-
-    def get_factories(self):
-        pass
-
-    def get_type_registry(self):
-        pass
-
-    def load_library(self, library_path):
-        pass
+    # def register_factory(self, component_factory):
+    #     pass
+    #
+    # def create_instance(self, uuid, name, description, parent):
+    #     pass
+    #
+    # def get_factory(self, uuid):
+    #     pass
+    #
+    # def get_factories(self):
+    #     pass
+    #
+    # def get_type_registry(self):
+    #     pass
+    #
+    # def load_library(self, library_path):
+    #     pass

@@ -1,19 +1,20 @@
 """ Counter Example
     This example is taken from SMP 2.0 Handbook, chapter 3
 """
+import time
+from datetime import timedelta
+
 from satsim import Simulator, Model, EntryPoint
 simulator = Simulator()
 
 
 class CounterModel(Model):
 
-    def __init__(self, name, description, parent=None):
+    def __init__(self, name, description, parent):
         super().__init__(name, description, parent)
-        self.logger = None
-        self.scheduler = None
         self.counter = 0
-        self.count_entrypoint = EntryPoint("counter entrypoint")
-        self.count_entrypoint.execute = lambda: self.count()
+        self.my_entrypoint = EntryPoint("counter entrypoint")
+        self.my_entrypoint.execute = lambda: self.log_count()
 
     def reset(self):
         self.counter = 0
@@ -22,16 +23,19 @@ class CounterModel(Model):
         self.counter += 1
         self.logger.log_info(self, "Increase counter")
 
-    def _publish(self, receiver):
-        receiver.publish_field("counter", "Counter state", self.counter)
+    def log_count(self):
+        self.logger.log_info(self, "Counter value {}".format(self.counter))
+
+    # def _publish(self, receiver):
+    #     receiver.publish_field("counter", "Counter state", self.counter)
 
     def _configure(self, logger, link_registry):
-        pass
+        self.logger = logger
 
     def _connect(self, simulator):
-        self.logger = simulator.get_logger()
         self.scheduler = simulator.get_scheduler()
-        self.scheduler.add_simulation_time_event(self.count_entrypoint, 0, 1e9)
+        self.scheduler.add_simulation_time_event(
+            self.count_entrypoint, timedelta(seconds=1))
 
     def _disconnect(self):
         pass
@@ -47,3 +51,9 @@ simulator.publish()
 simulator.configure()
 simulator.connect()
 simulator.initialise()
+
+print("Simulation started")
+simulator.run()
+time.sleep(1)  # run for some time
+simulator.exit()
+print("Simulation finished")
