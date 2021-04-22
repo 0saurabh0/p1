@@ -5,3 +5,16 @@ class InvalidComponentState(Exception):
 
 class InvalidSimulatorState(Exception):
     pass
+
+
+class InvalidEventTime(Exception):
+    pass
+
+
+class InvalidCycleTme(Exception):
+    pass
+
+
+# ?
+class Exception():
+    pass
