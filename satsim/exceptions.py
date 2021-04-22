@@ -15,6 +15,11 @@ class InvalidCycleTme(Exception):
     pass
 
 
+class InvalidEventId(Exception):
+    pass
+
+
+
 # ?
 class Exception():
     pass
