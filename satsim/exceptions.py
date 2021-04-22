@@ -19,7 +19,20 @@ class InvalidEventId(Exception):
     pass
 
 
+class InvalidEventName(Exception):
+    pass
+
+
+class EntryPointAlreadySubscribed(Exception):
+    pass
+
+
+class EntryPointNotSubscribed(Exception):
+    pass
+
 
 # ?
+
+
 class Exception():
     pass
