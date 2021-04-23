@@ -76,30 +76,37 @@ class Scheduler(Service):
 
 
     def set_event_simulation_time(self, event_id, simulation_time):
+        ''' the function does this
+        '''
+
         if simulation_time < 0 :
             # the Event is never executed but instead removed immediately from the scheduler
-            remove_event(event_id) # I don't know if it is done like this
+            remove_event(event_id)
+        # if event_id '''not currently on the scheduler''':
+        #     raise InvalidEventId()
+        #
+        # if event_id '''not scheduled on simulation time''':
+        #     raise InvalidEventId()
 
-        if event_id '''not currently on the scheduler''' :
+        if event_id '''not currently on the scheduler''' or event_id '''not scheduled on simulation time''':
             raise InvalidEventId()
-
-        if event_id '''not scheduled on simulation time''':
-            raise InvalidEventId()
-
         else:
             #update the simulation time of event
             pass
 
 
     def set_event_mission_time(self, event_id, mission_time):
-        if event_id '''not in the scheduler''' :
-            raise InvalidEventId()
+        # if event_id '''not in the scheduler''' :
+        #     raise InvalidEventId()
+        #
+        # if event_id '''not scheduled on mission time''':
+        #     raise InvalidEventId()
 
-        if event_id '''not scheduled on mission time''':
+        if event_id '''not in the scheduler''' or event_id '''not scheduled on mission time''':
             raise InvalidEventId()
 
         if mission_time < self.current_mission_time:
-            remove_event(event_id) # ??
+            remove_event(event_id)
 
         else:
             #update mission time of event
@@ -107,14 +114,20 @@ class Scheduler(Service):
 
 
     def set_event_epoch_time(self, event_id, epoch_time):
-        if event_id '''not in the scheduler''' :
-            raise InvalidEventId()
+        '''
+        shall update the Epoch time of the next execution of an Event
+        '''
+        # if event_id '''not in the scheduler''' :
+        #     raise InvalidEventId()
+        #
+        # if event_id '''not scheduled on epoch time''':
+        #     raise InvalidEventId()
 
-        if event_id '''not scheduled on epoch time''':
+        if event_id '''not in the scheduler''' or event_id '''not scheduled on epoch time''':
             raise InvalidEventId()
 
         if epoch_time < self.current_epoch_time:
-            remove_event(event_id) # ??
+            remove_event(event_id)
 
         else:
             #update epoch time of event
@@ -122,14 +135,20 @@ class Scheduler(Service):
 
 
     def set_event_zulu_time(self, event_id, zulu_time):
-        if event_id '''not in the scheduler''' :
-            raise InvalidEventId()
+        '''
+        shall update the Zulu time of the next execution of an Event
+        '''
+        # if event_id '''not in the scheduler''' :
+        #     raise InvalidEventId()
+        #
+        # if event_id '''not scheduled on zulu time''':
+        #     raise InvalidEventId()
 
-        if event_id '''not scheduled on zulu time''':
+        if event_id '''not in the scheduler''' or event_id '''not scheduled on zulu time''':
             raise InvalidEventId()
 
         if zulu_time < self.current_zulu_time:
-            remove_event(event_id) # ??
+            remove_event(event_id)
 
         else:
             # update zulu time of event
@@ -137,9 +156,11 @@ class Scheduler(Service):
 
 
     def set_event_cycle_time(self, event_id, cycle_time):
+
         if event_id '''not in the scheduler''' :
             raise InvalidEventId()
 
+        # repeat undefinied in the function
         if (repeat != 0 and cycle_time <= 0):
             raise InvalidCycleTme()
 
@@ -149,6 +170,7 @@ class Scheduler(Service):
 
 
     def set_event_count(self, event_id, count):
+
         if event_id '''not in the scheduler''' :
             raise InvalidEventId()
 
@@ -161,20 +183,31 @@ class Scheduler(Service):
 
         if count == 0:
             # the Event is removed immediately after its execution is finished
+            # execute
+            remove_event(event_id)
+
             pass
 
 
     def get_current_event_id(self):
+
+        # try :
+        #     if '''an event is currently executing''':
+        #         return self.event_id
+        # except:
+        #     return -1
+
         if '''an event is currently executing''':
             return self.event_id
-
         else :
             return -1
 
 
     def get_next_scheduled_event_time(self):
         ''' return the Simulation Time of the execution of the
-        next scheduled Simulation Time,Epoch Time or Mission Time Event '''
+        next scheduled Simulation Time, Epoch Time or Mission Time Event '''
+        # event scheduled in zulu time are not considered
+        #
         pass
 
 
