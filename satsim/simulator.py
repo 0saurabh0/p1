@@ -1,5 +1,5 @@
 from satsim import InvalidSimulatorState
-from satsim import Logger
+from satsim import Logger, TimeKeeper, EventManager, Scheduler
 from satsim import Component, Composite, Publication
 
 
@@ -21,10 +21,10 @@ class Simulator(Composite, Publication):
         self.services = []
 
         # services
-        self.logger = Logger()
-        #self.time_keeper = TimeKeeper()
-        #self.scheduluer = Scheduler()
-        #self.event_manager = EventManager()
+        self.logger = Logger(self)
+        self.time_keeper = TimeKeeper(self)
+        self.scheduluer = Scheduler(self)
+        self.event_manager = EventManager(self)
         #self.resolver = Resolver()
         #self.link_registry = LinkRegistry()
 

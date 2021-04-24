@@ -4,9 +4,10 @@ from satsim import Service, InvalidEventName, EntryPointAlreadySubscribed,\
 
 class EventManager(Service):
 
-    def __init__(self):
-        self._event_list = []
-        self.EVENT = {
+    def __init__(self, simulator):
+        self._simulator = simulator
+        self._event_entrypoint_pairs = []
+        self._events = {
             1: "LEAVE_CONNECTING",
             2: "ENTER_INITIALISING",
         }
@@ -27,37 +28,43 @@ class EventManager(Service):
         # LEAVE_RECONNECTING=17,
         # PRE_SIM_TIME_CHANGE=18,
         # POST_SIM_TIME_CHANGE=19)
+        self._event_count = 19
 
     def query_event_id(self, event_name):
         if not event_name.strip():
             raise InvalidEventName()
 
-        for key, value in self.EVENT.items():
+        for key, value in self._events.items():
             if event_name == key:
                 return value
         else:
             return None
 
     def subscribe(self, event_id, entry_point):
-        if (event_id, entry_point) in self._event_list:
+        if (event_id, entry_point) in self._event_entrypoint_pairs:
             raise EntryPointAlreadySubscribed()
 
-        if event_id not in self.EVENT:
+        if event_id not in self._events:
             raise InvalidEventId()
 
-        self._event_list.append((event_id, entry_point))
+        self._event_entrypoint_pairs.append((event_id, entry_point))
 
     def unsubscribe(self, event_id, entry_point):
-        if (event_id, entry_point) in self._event_list:
+        if (event_id, entry_point) in self._event_entrypoint_pairs:
             raise EntryPointAlreadySubscribed()
 
-        if event_id not in self.EVENT:
+        if event_id not in self._events:
             raise InvalidEventId()
 
-        self._event_list.remove((event_id, entry_point))
+        self._event_entrypoint_pairs.remove((event_id, entry_point))
 
-    def emit(self, event_id, synchronous):
+    def emit(self, event_id, synchronous=True):
         # TODO: allow for asynchronous, non-blocking, call
-        for _event_id, entry_point in self._event_list:
+        for _event_id, entry_point in self._event_entrypoint_pairs:
             if _event_id == event_id:
                 entry_point()
+
+    def create_new_event(self, name=None):
+        self._event_count += 1
+        self._events[self._event_count] = name
+        return self._event_count
