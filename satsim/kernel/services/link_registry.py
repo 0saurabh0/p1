@@ -1,64 +1,42 @@
-from satsim import Service, Logger
+from satsim import Service
 
 
-class LinkRegistry(Service, Logger):
+class LinkRegistry(Service):
 
     def __init__(self):
-        super(LinkRegistry, self).__init__()
-        # Can we do it by doing a list of list?
-        self.link_list = []
+        self._links = {}
 
     def add_link(self, source, target):
-        """.
-
-        The AddLink method shall increment the link count between two
-        components
-        """
-        # If it isn't a link before it's created or the count is 0
-        # and all the possible links are in the list?
-        for i in range(len(self.link_list)):
-            if (self.link_list[i][0] == source
-               and self.link_list[i][1] == target):
-                self.link_list[i][2] += 1
-                # self.log_info(self, "A new link has been created")
+        if (source, target) not in self._links:
+            self._links[(source, target)] = 1
+        else:
+            self._links[(source, target)] += 1
 
     def get_link_count(self, source, target):
-        """.
-
-        The GetLinkCount method shall return the link count
-        between the given source and target.
-        """
-        for i in range(len(self.link_list)):
-            if (self.link_list[i][0] == source
-               and self.link_list[i][1] == target):
-                return self.link_list[i][2]
+        if (source, target) not in self._links:
+            return 0
+        else:
+            return self._links[(source, target)]
 
     def remove_link(self, source, target):
-        """.
-
-        The RemoveLink method shall decrement the link count
-        between the two components
-        """
-        for i in range(len(self.link_list)):
-            if (self.link_list[i][0] == source
-               and self.link_list[i][1] == target):
-                if self.link_list[i][2] != 0:
-                    self.link_list[i][2] -= 1
-                    # self.logger.log_info(self, "A link has been removed")
-                    return True
-                if self.link_list[i][2] == 0:
-                    return False
+        if (source, target) not in self._links:
+            return False
+        else:
+            if self._links[(source, target)] > 0:
+                self._links[(source, target)] -= 1
+            else:
+                return False
 
     def get_link_sources(self, target):
-        """.
-
-        The ILinkRegistry GetLinkSources method shall return the collection of
-        source components for which a link to the given target component has
+        """
+        Return the source components for which a link to given target has
         been added to the registry.
         """
-        for _source, _target, _link in self.link_list:
-            if target == _target and _link > 0:
-                return _source
+        sources = []
+        for source, _target in self._links.keys():
+            if _target == target:
+                sources.append(source)
+        return sources
 
     def can_remove(self, target):
         """.
