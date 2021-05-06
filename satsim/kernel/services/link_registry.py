@@ -39,8 +39,7 @@ class LinkRegistry(Service):
         return sources
 
     def can_remove(self, target):
-        """.
-
+        """
         The ILinkRegistry CanRemove method shall return whether all source
         components linking to the given target can be asked to remove their
         link(s).
@@ -51,16 +50,14 @@ class LinkRegistry(Service):
         # (b) If at least one of the source components linking to the given
         # target cannot be asked to remove its link(s), it returns false.
 
-        # I don't know how to do this
+        raise NotImplementedError
 
     def remove_links(self, target):
-        """.
-
-        The RemoveLinks method shall call the RemoveLinks method of all source
-        components that implement the optional ILinkingComponent interface:
         """
-        for _source, _target, _link in self.link_list:
-            if target == _target:
-                # remove_link(_source, target)
-                # how to this until _link = 0?
-                pass
+        Call the remove_link method of all source components that implement
+        the optional ILinkingComponent interface with the target given:
+        """
+        for source, _target in self._links.keys():
+            if _target == target:
+                while self._links[(source, _target)] > 0:
+                    self.remove_link(source, _target)
