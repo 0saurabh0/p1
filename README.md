@@ -5,7 +5,7 @@ the recommendations provided in the ECSS Standard [ECSS-E-ST-40-07C](docs/ECSS-E
 
 It consists of two parts:
 - a kernel to run simulations (based on discrete-event simulation and using [SimPy](https://simpy.readthedocs.io))
-- a model library to build your satellite system that is to be simulated (adhering to SMP2 modelling specification)
+- a model library to build your system that is to be simulated (adhering to SMP2 modelling specification)
 
 ## Installation
 
@@ -22,6 +22,10 @@ $ pip install -e .
 ## Example
 
 To be written...
+
+## Documentation
+
+See [here](docs/README.md) for details on how to use SatSim module.
 
 ## Contribute
 

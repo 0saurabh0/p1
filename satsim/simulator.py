@@ -1,5 +1,6 @@
 from satsim import InvalidSimulatorState
-from satsim import Logger, TimeKeeper, EventManager, Scheduler
+from satsim import Logger, TimeKeeper, EventManager, Scheduler, Resolver,\
+    LinkRegistry
 from satsim import Component, Composite, Publication
 
 
@@ -17,38 +18,22 @@ class Simulator(Composite, Publication):
     ABORTING = 9
 
     def __init__(self):
-        self.models = []
-        self.services = []
+        self.models = []  # TODO: use container class
+        self.services = []  # TODO: use container class
 
         # services
         self.logger = Logger(self)
         self.time_keeper = TimeKeeper(self)
         self.scheduluer = Scheduler(self)
         self.event_manager = EventManager(self)
-        #self.resolver = Resolver()
-        #self.link_registry = LinkRegistry()
+        self.resolver = Resolver(self)
+        self.link_registry = LinkRegistry(self)
 
         self.state = self.BUILDING
 
     def publish(self):
-        """The simulator publish method shall call the `publish()` method of all
-        service and model instances in the component hierarchy that are in
-        `CREATED` state within the simulation.
-        """
-
-        # If simulation is not in `BUILDING` state then return without action
         if self.state != self.BUILDING:
             return
-
-        # If execution of global even `LEAVING_BUILDING` then
-        # return without action
-        #TODO...
-
-        # TODO: issue global event "Leaving Building" and wait for return
-
-        #self.state = self.PUBLISHING
-
-        # TODO: issue global event "EnterPublishing" and wait for return
 
         for service in self.services:
             if service.state == Component.CREATED:
@@ -58,22 +43,72 @@ class Simulator(Composite, Publication):
         for model in self.models:
             if model.state == Component.CREATED:
                 model.publish(self)
-                #TODO: call publish on all child components recursevly
-
-        # TODO: issue global event "LeavingPublishing" and wait for return
-        self.state = self.BUILDING
-        # TODO: issue global event "EnterBuilding" and wait for return
+                # TODO: call publish on all child components recursevly
 
     def configure(self):
         if self.state != self.BUILDING:
             return
 
-        # TODO: if called during global event "LeavingBuilding" then return
+        for service in self.services:
+            if service.state == Component.CREATED:
+                service.publish(self)
+            if service.state == Component.PUBLISHING:
+                service.configure(self.logger, self.link_registry)
+            # TODO: do this all child components recursevly
 
-        # TODO: issue global event "LeavingBuilding" and wait
+        for model in self.models:
+            if model.state == Component.CREATED:
+                model.publish(self)
+            if model.state == Component.PUBLISHING:
+                model.configure(self.logger, self.link_registry)
+            # TODO: do this all child components recursevly
 
     def connect(self):
-        pass
+        if self.state != self.BUILDING:
+            return
+
+        self.state = self.CONNECTING
+
+        for service in self.services:
+            if service.state == Component.CREATED:
+                service.publish(self)
+            if service.state == Component.PUBLISHING:
+                service.configure(self.logger, self.link_registry)
+            if service.state == Component.CONFIGURED:
+                service.connect(self)
+            # TODO: do this all child components recursevly
+
+        for model in self.models:
+            if model.state == Component.CREATED:
+                model.publish(self)
+            if model.state == Component.PUBLISHING:
+                model.configure(self.logger, self.link_registry)
+            if model.state == Component.CONFIGURED:
+                model.connect(self)
+            # TODO: do this all child components recursevly
+
+        event_id = self.event_manager.query_event_id("LEAVE_CONNECTING")
+        self.event_manager.emit(event_id)
+
+        self.state = self.INITIALISING
+
+        event_id = self.event_manager.query_event_id("ENTER_INITIALISING")
+        self.event_manager.emit(event_id)
+
+        # TODO: call initialising entry points for all models that registered
+        # an init entry point via simulator.add_init_entry_point, in the order
+        # they were added.
+
+        # TODO: Afterwards remove the entry points from the list, in order not
+        # to call it twice when initialise is called again.
+
+        event_id = self.event_manager.query_event_id("LEAVE_INITIALISING")
+        self.event_manager.emit(event_id)
+
+        self.state = self.STANDBY
+
+        event_id = self.event_manager.query_event_id("ENTER_STANDBY")
+        self.event_manager.emit(event_id)
 
     def initialise(self):
         pass
