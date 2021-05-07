@@ -5,8 +5,8 @@ class Container(Object):
 
     def __init__(self):
         self.components = []
-        self.max_len = []  # a number to be defined
-        self.min_len = []
+        self.max_len = ''  # [] a number to be defined
+        self.min_len = ''
 
     def get_component(self, name):
         if name not in self.components:
@@ -49,23 +49,27 @@ class Container(Object):
     def get_upper(self):
         # If the maximum number of elements for the collection has been
         # defined, it returns the maximum number. If not, it returns -1.
-        if len(self.max_len) == 0:
+        #if len(self.max_len) == 0:
+        if self.max_len:
             return -1
 
         else:
-            return self.max_len[0]
+            #return self.max_len[0]
+            return self.max_len
 
     def get_lower(self):
-        if len(self.min_len) == 0:
+        #if len(self.min_len) == 0:
+        if self.min_len:
             return 0
 
         else:
-            return self.min_len[0]
+            #return self.min_len[0]
+            return self.min_len
 
     def delete_component(self, component):
         # If the minimum number of component(s) contained by this object
         # is reached, it throws a CannotDelete
-        if len(self.components) == self.min_len[0]:
+        if len(self.components) == self.min_len:
             raise CannotDelete()
 
         elif component not in self.components:
