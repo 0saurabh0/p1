@@ -28,8 +28,7 @@ class EventManager(Service):
             18: "PRE_SIM_TIME_CHANGE",
             19: "POST_SIM_TIME_CHANGE"
         }
-
-        self._event_count = 19
+        self._event_count = len(self._events)
 
     def query_event_id(self, event_name):
         if not event_name.strip():

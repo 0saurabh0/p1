@@ -1,5 +1,6 @@
 from satsim import Service
 
+
 class Resolver(Service):
 
     def __init__(self):
@@ -15,15 +16,7 @@ class Resolver(Service):
         If no object with the given path can be found, it returns nullptr;
         If absolute_path resolves to an object, it returns the Object reference to the object."""
 
-        if ... :
-            return None
-        elif ... :
-            return None
-        elif ... :
-            # if self._events is a dictionnary of events
-            return self._events[]
-
-
+        raise NotImplementedError
 
     def resolve_relative(self, relative_path):
-        pass
+        raise NotImplementedError
