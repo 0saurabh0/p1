@@ -12,46 +12,46 @@ class Component(Object):
 
     def __init__(self, name, description, parent=None):
         super().__init__(name, description, parent)
-        self.state = self.CREATED
+        self._state = self.CREATED
 
     def get_state(self):
-        return self.state
+        return self._state
 
     def publish(self, receiver):
         """Publish all publishable fields, properties, and operations."""
-        if self.state != self.CREATED:
+        if self._state != self.CREATED:
             raise satsim.InvalidComponentState()
 
         # custom code here
 
-        self.state = self.PUBLISHING
+        self._state = self.PUBLISHING
 
     def configure(self, logger, link_registry):
         """Perform initial configuration."""
-        if self.state != self.PUBLISHING:
+        if self._state != self.PUBLISHING:
             raise satsim.InvalidComponentState()
 
         # custom code here
 
-        self.state = self.CONFIGURED
+        self._state = self.CONFIGURED
 
     def connect(self, simulator):
         """Connect to the simulator environment and other components."""
-        if self.state != self.CONFIGURED:
+        if self._state != self.CONFIGURED:
             raise satsim.InvalidComponentState()
 
         # custom code here
 
-        self.state = self.CONNECTED
+        self._state = self.CONNECTED
 
     def disconnect(self):
         """Disconnect from the simulation environment and other components."""
-        if self.state != self.CONNECTED:
+        if self._state != self.CONNECTED:
             raise satsim.InvalidComponentState()
 
         # custom code here
 
-        self.state = self.DISCONNECTED
+        self._state = self.DISCONNECTED
 
     def get_field(self, full_name):
         # TODO
