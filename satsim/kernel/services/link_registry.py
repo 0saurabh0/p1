@@ -3,7 +3,8 @@ from satsim import Service
 
 class LinkRegistry(Service):
 
-    def __init__(self):
+    def __init__(self, simulator):
+        self._simulator = simulator
         self._links = {}
 
     def add_link(self, source, target):

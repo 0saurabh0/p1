@@ -3,8 +3,8 @@ from satsim import Service
 
 class Resolver(Service):
 
-    def __init__(self):
-        pass
+    def __init__(self, simulator):
+        self._simulator = simulator
 
     def resolve_absolute(self, absolute_path):
         """returns a reference to a component, field, failure container, reference,
