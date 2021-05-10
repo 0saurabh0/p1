@@ -10,24 +10,25 @@ class EventManager(Service):
         self._events = {
             1: "LEAVE_CONNECTING",
             2: "ENTER_INITIALISING",
+            3: "LEAVE_INITIALISING",
+            4: "ENTER_STANDBY",
+            5: "LEAVE_STANDBY",
+            6: "ENTER_EXECUTING",
+            7: "LEAVE_EXECUTING",
+            8: "ENTER_STORING",
+            9: "LEAVE_STORING",
+            10: "ENTER_RESTORING",
+            11: "LEAVE_RESTORING",
+            12: "ENTER_EXITING",
+            13: "ENTER_ABORTING",
+            14: "EPOCH_TIME_CHANGED",
+            15: "MISSION_TIME_CHANGED",
+            16: "ENTER_RECONNECTING",
+            17: "LEAVE_RECONNECTING",
+            18: "PRE_SIM_TIME_CHANGE",
+            19: "POST_SIM_TIME_CHANGE"
         }
-        # LEAVE_INITIALISING=3,
-        # ENTER_STANDBY=4,
-        # LEAVE_STANDBY=5,
-        # ENTER_EXECUTING=6,
-        # LEAVE_EXECUTING=7,
-        # ENTER_STORING=8,
-        # LEAVE_STORING=9,
-        # ENTER_RESTORING=10,
-        # LEAVE_RESTORING=11,
-        # ENTER_EXITING=12,
-        # ENTER_ABORTING=13,
-        # EPOCH_TIME_CHANGED=14,
-        # MISSION_TIME_CHANGED=15,
-        # ENTER_RECONNECTING=16,
-        # LEAVE_RECONNECTING=17,
-        # PRE_SIM_TIME_CHANGE=18,
-        # POST_SIM_TIME_CHANGE=19)
+
         self._event_count = 19
 
     def query_event_id(self, event_name):
