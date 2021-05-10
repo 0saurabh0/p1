@@ -21,43 +21,51 @@ class Component(Object):
             raise InvalidComponentState()
         else:
             self.state = self.PUBLISHING
-            self._publish(receiver)
-
-    def _publish(self, receiver):
-        # To be implemented by user
-        pass
+            self.my_publish(receiver)
 
     def configure(self, logger, link_registry):
         if self.state != self.PUBLISHING:
             raise InvalidComponentState()
         else:
-            self._configure(logger, link_registry)
+            self.my_configure(logger, link_registry)
             self.state = self.CONFIGURED
-
-    def _configure(self, logger, link_registry):
-        # To be implemented by user
-        pass
 
     def connect(self, simulator):
         if self.state != self.CONFIGURED:
             raise InvalidComponentState()
         else:
             self.state = self.CONNECTED
-            self._connect(simulator)
-
-    def _connect(self, simulator):
-        # To be implemented by user
-        pass
+            self.my_connect(simulator)
 
     def disconnect(self):
         if self.state != self.CONNECTED:
             raise InvalidComponentState()
         else:
             self.state = self.DISCONNECTED
-            self._disconnect()
+            self.my_disconnect()
 
-    def _disconnect(self):
-        # To be implemented by user
+    def my_publish(self, receiver):
+        """Publish all publishable fields, properties, and operations.
+        To be implemented by user.
+        """
+        pass
+
+    def my_configure(self, logger, link_registry):
+        """Perform initial configuration.
+        To be implemented by user.
+        """
+        pass
+
+    def my_connect(self, simulator):
+        """Connect to the simulator environment and other components.
+        To be implemented by user.
+        """
+        pass
+
+    def my_disconnect(self):
+        """Disconnect from the simulation environment and any other component.
+        To be implemented by user.
+        """
         pass
 
     def get_field(self, full_name):
