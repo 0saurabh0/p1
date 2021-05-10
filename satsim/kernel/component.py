@@ -1,4 +1,5 @@
-from satsim import InvalidComponentState, Object
+import satsim
+from satsim import Object
 
 
 class Component(Object):
@@ -17,56 +18,40 @@ class Component(Object):
         return self.state
 
     def publish(self, receiver):
+        """Publish all publishable fields, properties, and operations."""
         if self.state != self.CREATED:
-            raise InvalidComponentState()
-        else:
-            self.state = self.PUBLISHING
-            self.my_publish(receiver)
+            raise satsim.InvalidComponentState()
+
+        # custom code here
+
+        self.state = self.PUBLISHING
 
     def configure(self, logger, link_registry):
+        """Perform initial configuration."""
         if self.state != self.PUBLISHING:
-            raise InvalidComponentState()
-        else:
-            self.my_configure(logger, link_registry)
-            self.state = self.CONFIGURED
+            raise satsim.InvalidComponentState()
+
+        # custom code here
+
+        self.state = self.CONFIGURED
 
     def connect(self, simulator):
+        """Connect to the simulator environment and other components."""
         if self.state != self.CONFIGURED:
-            raise InvalidComponentState()
-        else:
-            self.state = self.CONNECTED
-            self.my_connect(simulator)
+            raise satsim.InvalidComponentState()
+
+        # custom code here
+
+        self.state = self.CONNECTED
 
     def disconnect(self):
+        """Disconnect from the simulation environment and other components."""
         if self.state != self.CONNECTED:
-            raise InvalidComponentState()
-        else:
-            self.state = self.DISCONNECTED
-            self.my_disconnect()
+            raise satsim.InvalidComponentState()
 
-    def my_publish(self, receiver):
-        """Publish all publishable fields, properties, and operations.
-        To be implemented by user.
-        """
-        pass
+        # custom code here
 
-    def my_configure(self, logger, link_registry):
-        """Perform initial configuration.
-        To be implemented by user.
-        """
-        pass
-
-    def my_connect(self, simulator):
-        """Connect to the simulator environment and other components.
-        To be implemented by user.
-        """
-        pass
-
-    def my_disconnect(self):
-        """Disconnect from the simulation environment and any other component.
-        To be implemented by user.
-        """
-        pass
+        self.state = self.DISCONNECTED
 
     def get_field(self, full_name):
         # TODO

@@ -4,6 +4,7 @@ from .kernel.publication import Publication
 from .kernel.object import Object
 from .kernel.component import Component
 from .kernel.composite import Composite
+from .kernel.container import Container
 from .kernel.model import Model
 from .kernel.entry_point import EntryPoint
 from .kernel.service import Service

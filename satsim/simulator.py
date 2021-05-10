@@ -1,7 +1,7 @@
 from satsim import InvalidSimulatorState
 from satsim import Logger, TimeKeeper, EventManager, Scheduler, Resolver,\
     LinkRegistry
-from satsim import Component, Composite, Publication
+from satsim import Component, Composite, Container, Publication
 
 
 class Simulator(Composite, Publication):
@@ -18,16 +18,20 @@ class Simulator(Composite, Publication):
     ABORTING = 9
 
     def __init__(self):
-        self.models = []  # TODO: use container class
-        self.services = []  # TODO: use container class
+        self.containers = [
+            Container("Models", "", self),
+            Container("Services", "", self)
+        ]
 
         # services
         self.logger = Logger(self)
         self.time_keeper = TimeKeeper(self)
-        self.scheduluer = Scheduler(self)
+        self.scheduler = Scheduler(self)
         self.event_manager = EventManager(self)
         self.resolver = Resolver(self)
         self.link_registry = LinkRegistry(self)
+
+        self.init_entry_points = []
 
         self.state = self.BUILDING
 
@@ -35,12 +39,12 @@ class Simulator(Composite, Publication):
         if self.state != self.BUILDING:
             return
 
-        for service in self.services:
+        for service in self.get_container("Services").get_components():
             if service.state == Component.CREATED:
                 service.publish(self)
                 # TODO: call publish on all child components recursevly
 
-        for model in self.models:
+        for model in self.get_container("Models").get_components():
             if model.state == Component.CREATED:
                 model.publish(self)
                 # TODO: call publish on all child components recursevly
@@ -49,14 +53,14 @@ class Simulator(Composite, Publication):
         if self.state != self.BUILDING:
             return
 
-        for service in self.services:
+        for service in self.get_container("Services").get_components():
             if service.state == Component.CREATED:
                 service.publish(self)
             if service.state == Component.PUBLISHING:
                 service.configure(self.logger, self.link_registry)
             # TODO: do this all child components recursevly
 
-        for model in self.models:
+        for model in self.get_container("Models").get_components():
             if model.state == Component.CREATED:
                 model.publish(self)
             if model.state == Component.PUBLISHING:
@@ -69,7 +73,7 @@ class Simulator(Composite, Publication):
 
         self.state = self.CONNECTING
 
-        for service in self.services:
+        for service in self.get_container("Services").get_components():
             if service.state == Component.CREATED:
                 service.publish(self)
             if service.state == Component.PUBLISHING:
@@ -78,7 +82,7 @@ class Simulator(Composite, Publication):
                 service.connect(self)
             # TODO: do this all child components recursevly
 
-        for model in self.models:
+        for model in self.get_container("Models").get_components():
             if model.state == Component.CREATED:
                 model.publish(self)
             if model.state == Component.PUBLISHING:
@@ -95,12 +99,9 @@ class Simulator(Composite, Publication):
         event_id = self.event_manager.query_event_id("ENTER_INITIALISING")
         self.event_manager.emit(event_id)
 
-        # TODO: call initialising entry points for all models that registered
-        # an init entry point via simulator.add_init_entry_point, in the order
-        # they were added.
-
-        # TODO: Afterwards remove the entry points from the list, in order not
-        # to call it twice when initialise is called again.
+        for init_entry_point in self.init_entry_points:
+            init_entry_point()
+        self.init_entry_points = []
 
         event_id = self.event_manager.query_event_id("LEAVE_INITIALISING")
         self.event_manager.emit(event_id)
@@ -111,10 +112,40 @@ class Simulator(Composite, Publication):
         self.event_manager.emit(event_id)
 
     def initialise(self):
-        pass
+        if self.state != self.STANDBY:
+            return
+
+        event_id = self.event_manager.query_event_id("LEAVE_STANDBY")
+        self.event_manager.emit(event_id)
+
+        self.state = self.INITIALISING
+
+        event_id = self.event_manager.query_event_id("ENTER_INITIALISING")
+        self.event_manager.emit(event_id)
+
+        for init_entry_point in self.init_entry_points:
+            init_entry_point()
+        self.init_entry_points = []
+
+        event_id = self.event_manager.query_event_id("LEAVE_INITIALISING")
+        self.event_manager.emit(event_id)
+
+        self.state = self.STANDBY
+
+        event_id = self.event_manager.query_event_id("ENTER_STANDBY")
+        self.event_manager.emit(event_id)
 
     def run(self):
-        pass
+        if self.state != self.STANDBY:
+            return
+
+        event_id = self.event_manager.query_event_id("LEAVE_STANDBY")
+        self.event_manager.emit(event_id)
+
+        self.state = self.EXECUTING
+
+        event_id = self.event_manager.query_event_id("ENTER_EXECUTING")
+        self.event_manager.emit(event_id)
 
     def hold(self, immediate=False):
         pass
@@ -138,7 +169,10 @@ class Simulator(Composite, Publication):
         pass
 
     def add_init_entry_point(self, entry_point):
-        pass
+        if self.state not in [self.BUILDING, self.CONNECTING, self.STANDBY]:
+            return
+
+        self.init_entry_points.append(entry_point)
 
     def add_model(self, model):
         if self.state not in [
@@ -147,7 +181,7 @@ class Simulator(Composite, Publication):
             raise InvalidSimulatorState()
         # TODO: check for conflict of name with already added model
         # TODO: check for conflict of name with already added service
-        self.models.append(model)
+        self.get_container("Models").add_component(model)
 
     def add_service(self, service):
         if self.state not in self.BUILDING:
@@ -167,8 +201,7 @@ class Simulator(Composite, Publication):
         pass
 
     def get_scheduler(self):
-        # TODO
-        pass
+        return self.scheduler
 
     def get_event_manager(self):
         # TODO

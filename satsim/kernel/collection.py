@@ -17,3 +17,4 @@ class Collection(Object):
     def collection_size(self):
         """ shall return the number of items in the collection
         """
+        pass

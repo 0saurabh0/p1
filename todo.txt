@@ -1,3 +1,0 @@
-simulator.py:
-- how to issue global events via event manager
-- get child components of models/services recursively

@@ -4,6 +4,7 @@
 import time
 from datetime import timedelta
 
+import satsim
 from satsim import Simulator, Model, EntryPoint
 simulator = Simulator()
 
@@ -12,33 +13,41 @@ class CounterModel(Model):
 
     def __init__(self, name, description, parent):
         super().__init__(name, description, parent)
-        self.counter = 0
-        self.my_entrypoint = EntryPoint("counter entrypoint")
-        self.my_entrypoint.execute = lambda: self.log_count()
+        self._counter = 0
+        self._entrypoint = EntryPoint("counter entrypoint")
+        self._entrypoint.execute = lambda: self._log_count()
 
-    def reset(self):
-        self.counter = 0
+    def _reset(self):
+        self._counter = 0
 
-    def count(self):
-        self.counter += 1
+    def _count(self):
+        self._counter += 1
         self.logger.log_info(self, "Increase counter")
 
-    def log_count(self):
-        self.logger.log_info(self, "Counter value {}".format(self.counter))
+    def _log_count(self):
+        self.logger.log_info(self, "Counter value {}".format(self._counter))
 
-    # def _publish(self, receiver):
-    #     receiver.publish_field("counter", "Counter state", self.counter)
+    def configure(self, logger, link_registry):
+        """Perform initial configuration."""
+        if self.state != self.PUBLISHING:
+            raise satsim.InvalidComponentState()
 
-    def _configure(self, logger, link_registry):
         self.logger = logger
+        self.logger.log_info(self, "Counter Model is now configured.")
 
-    def _connect(self, simulator):
+        self.state = self.CONFIGURED
+
+    def connect(self, simulator):
+        """Connect to the simulator environment and other components."""
+        if self.state != self.CONFIGURED:
+            raise satsim.InvalidComponentState()
+
         self.scheduler = simulator.get_scheduler()
         self.scheduler.add_simulation_time_event(
-            self.count_entrypoint, timedelta(seconds=1))
+            self._entrypoint, timedelta(seconds=1))
+        self.logger.log_info(self, "Counter Model is now connected.")
 
-    def _disconnect(self):
-        pass
+        self.state = self.CONNECTED
 
 
 # Create model instance

@@ -3,10 +3,11 @@ from satsim import Object
 
 class Container(Object):
 
-    def __init__(self):
+    def __init__(self, name, description="", parent=None):
+        super().__init__(name, description, parent)
         self.components = []
-        self.max_len = ''  # [] a number to be defined
-        self.min_len = ''
+        self.max_len = -1
+        self.min_len = -1
 
     def get_component(self, name):
         if name not in self.components:
