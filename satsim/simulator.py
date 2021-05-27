@@ -2,6 +2,7 @@ from satsim import InvalidSimulatorState
 from satsim import Logger, TimeKeeper, EventManager, Scheduler, Resolver,\
     LinkRegistry
 from satsim import Component, Composite, Container, Publication
+import simpy as sp
 
 
 class Simulator(Composite, Publication):
@@ -22,6 +23,8 @@ class Simulator(Composite, Publication):
             Container("Models", "", self),
             Container("Services", "", self)
         ]
+
+        self.env = sp.Environment()  # Create the environment
 
         # services
         self._logger = Logger(self)
@@ -146,6 +149,22 @@ class Simulator(Composite, Publication):
 
         event_id = self._event_manager.query_event_id("ENTER_EXECUTING")
         self._event_manager.emit(event_id)
+
+        # start the simulation
+        self.env.process(self.run_simulation())
+        self.env.run(until=12)
+
+    def run_simulation(self):
+        # new method
+        scheduled_events = self._scheduler._scheduled_events
+
+        while True:
+            for key in scheduled_events.keys():
+                if self.env.now == scheduled_events[key]['simulation_time']:
+                    print("Function executed at", self.env.now)
+                    scheduled_events[key]['entry_point'].execute()
+
+            yield self.env.timeout(1)
 
     def hold(self, immediate=False):
         pass

@@ -6,8 +6,6 @@ from datetime import timedelta
 
 import satsim
 
-#import simpy as sp
-
 
 class CounterModel(satsim.Model):
 
@@ -44,7 +42,7 @@ class CounterModel(satsim.Model):
 
         self.scheduler = simulator.get_scheduler()
         self.scheduler.add_simulation_time_event(
-            self.entrypoint, timedelta(seconds=1))
+            self.entrypoint, 1)  # I have changed timedelta(seconds=1)
         self.logger.log_info(self, "Counter Model is now connected")
 
         self._state = self.CONNECTED
