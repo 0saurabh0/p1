@@ -163,7 +163,8 @@ class Simulator(Composite, Publication):
                 if self.env.now == scheduled_events[key]['simulation_time']:
                     print("Function executed at", self.env.now)
                     scheduled_events[key]['entry_point'].execute()
-
+                    print(f"the last event executed was {scheduled_events[key]['entry_point']}")
+                    # print(type(scheduled_events[key]['entry_point']))
             yield self.env.timeout(1)
 
     def hold(self, immediate=False):

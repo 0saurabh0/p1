@@ -31,12 +31,21 @@ class EventManager(Service):
         self._event_count = len(self._events)
 
     def query_event_id(self, event_name):
+        """
+        Input
+        event_name: has to be a string corresponding to the event id (the value
+        of the event dictionary)
+        Output:
+        the event id (number)
+        """
         if not event_name.strip():
             raise InvalidEventName()
 
         for key, value in self._events.items():
-            if event_name == key:
-                return value
+            # print(key, value)
+            if event_name == value:
+                # print(key)
+                return key
         else:
             return None
 

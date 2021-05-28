@@ -24,6 +24,8 @@ class Scheduler(Service):
                 'simulation_time': simulation_time,
                 'cycle_time': cycle_time,
                 'repeat': repeat}
+            print(self._scheduled_events)
+
             return event_id
 
     # def add_mission_time_event(

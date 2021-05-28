@@ -68,6 +68,6 @@ simulator.initialise()
 
 print("Simulation started")
 simulator.run()
-time.sleep(1.5)  # run for some time
+time.sleep(5)  # run for some time
 simulator.exit()
 print("Simulation finished")

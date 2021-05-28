@@ -3,7 +3,7 @@ import simpy as sp
 simulation_time = {}
 
 def clock(env):
-    while env.now != endsimulation:
+    while True: # env.now != endsimulation:
         if env.now in simulation_time.keys():
             print("The function is going to be executed at", env.now)
             simulation_time[env.now]()  # Executes the function
