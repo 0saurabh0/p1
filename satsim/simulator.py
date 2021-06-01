@@ -156,14 +156,13 @@ class Simulator(Composite, Publication):
 
     def run_simulation(self):
         # new method
-        scheduled_events = self._scheduler._scheduled_events
-
         while True:
-            for key in scheduled_events.keys():
-                if self.env.now == scheduled_events[key]['simulation_time']:
+            for key in sorted(self._scheduler._scheduled_events):
+                if self.env.now == \
+                 self._scheduler._scheduled_events[key]['simulation_time']:
                     print("Function executed at", self.env.now)
-                    scheduled_events[key]['entry_point'].execute()
-                    print(f"the last event executed was {scheduled_events[key]['entry_point']}")
+                    self._scheduler._scheduled_events[key]['entry_point'].execute()
+                    print(f"the last event executed was {self._scheduler._scheduled_events[key]['entry_point']}")
                     # print(type(scheduled_events[key]['entry_point']))
             yield self.env.timeout(1)
 
