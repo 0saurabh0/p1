@@ -1,8 +1,8 @@
-from satsim import InvalidSimulatorState
+import simpy.rt as sp
+
 from satsim import Logger, TimeKeeper, EventManager, Scheduler, Resolver,\
-    LinkRegistry
-from satsim import Component, Composite, Container, Publication
-import simpy as sp
+    LinkRegistry, Component, Composite, Container, Publication,\
+    InvalidSimulatorState
 
 
 class Simulator(Composite, Publication):
@@ -23,9 +23,6 @@ class Simulator(Composite, Publication):
             Container("Models", "", self),
             Container("Services", "", self)
         ]
-
-        self.env = sp.Environment()  # Create the environment
-
         # services
         self._logger = Logger(self)
         self._time_keeper = TimeKeeper(self)
@@ -35,6 +32,8 @@ class Simulator(Composite, Publication):
         self._link_registry = LinkRegistry(self)
 
         self._init_entry_points = []
+
+        self.env = sp.RealtimeEnvironment(factor=1, strict=False)
 
         self._state = self.BUILDING
 
@@ -151,19 +150,24 @@ class Simulator(Composite, Publication):
         self._event_manager.emit(event_id)
 
         # start the simulation
-        self.env.process(self.run_simulation())
-        self.env.run(until=12)
+        self.env.process(self._simulation_process())
+        self.env.run(until=5)
 
-    def run_simulation(self):
-        # new method
+    def _simulation_process(self):
         while True:
-            for key in sorted(self._scheduler._scheduled_events):
-                if self.env.now == \
-                 self._scheduler._scheduled_events[key]['simulation_time']:
-                    print("Function executed at", self.env.now)
-                    self._scheduler._scheduled_events[key]['entry_point'].execute()
-                    print(f"the last event executed was {self._scheduler._scheduled_events[key]['entry_point']}")
-                    # print(type(scheduled_events[key]['entry_point']))
+            for event_id, event in sorted(
+                    self._scheduler._scheduled_events.items()):
+
+                if self.env.now >= event['simulation_time']:
+                    event['entry_point'].execute()
+                    if event['repeat'] > 0:
+                        event['repeat'] -= 1
+                        event['simulation_time'] += event['cycle_time']
+                    elif event['repeat'] == 0:
+                        del self._scheduler._scheduled_events[event_id]
+                    else:
+                        event['simulation_time'] += event['cycle_time']
+
             yield self.env.timeout(1)
 
     def hold(self, immediate=False):
