@@ -7,6 +7,7 @@ class Scheduler(Service):
         self._simulator = simulator
         self._scheduled_events = {}
         self._immediate_events = {}
+        self.current_event_id = None
 
     def add_simulation_time_event(
             self, entry_point, simulation_time, cycle_time=0, repeat=0):
@@ -186,17 +187,7 @@ class Scheduler(Service):
         #     pass
 
     def get_current_event_id(self):
-        raise NotImplementedError
-        # # try :
-        # #     if '''an event is currently executing''':
-        # #         return self.event_id
-        # # except:
-        # #     return -1
-        #
-        # if '''an event is currently executing''':
-        #     return self.event_id
-        # else:
-        #     return -1
+        return self.current_event_id
 
     def get_next_scheduled_event_time(self):
         raise NotImplementedError

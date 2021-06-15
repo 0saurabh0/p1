@@ -159,12 +159,15 @@ class Simulator(Composite, Publication):
 
     def _simulation_process(self):
         while True:
+            self._scheduler.current_event_id = None
+
             if self._terminate:
                 break
             for event_id, event in sorted(
                     self._scheduler._scheduled_events.items()):
 
                 if self.env.now >= event['simulation_time']:
+                    self._scheduler.current_event_id = event_id
                     event['entry_point'].execute()
                     if event['repeat'] > 0:
                         event['repeat'] -= 1

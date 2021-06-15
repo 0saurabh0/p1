@@ -67,7 +67,7 @@ simulator.run()
 
 # run for some time
 for i in range(10):
-    #simulator.get_scheduler().get_current_event_id()
+    print("Current event", simulator.get_scheduler().get_current_event_id())
     time.sleep(1)
 
 print("Simulation completed")
