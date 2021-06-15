@@ -1,3 +1,5 @@
+import threading
+
 import simpy.rt as sp
 
 from satsim import Logger, TimeKeeper, EventManager, Scheduler, Resolver,\
@@ -34,6 +36,7 @@ class Simulator(Composite, Publication):
         self._init_entry_points = []
 
         self.env = sp.RealtimeEnvironment(factor=1, strict=False)
+        self._terminate = False
 
         self._state = self.BUILDING
 
@@ -151,10 +154,13 @@ class Simulator(Composite, Publication):
 
         # start the simulation
         self.env.process(self._simulation_process())
-        self.env.run(until=5)
+        t = threading.Thread(target=self.env.run)
+        t.start()
 
     def _simulation_process(self):
         while True:
+            if self._terminate:
+                break
             for event_id, event in sorted(
                     self._scheduler._scheduled_events.items()):
 
@@ -183,7 +189,7 @@ class Simulator(Composite, Publication):
         pass
 
     def exit(self):
-        pass
+        self._terminate = True
 
     def abort(self):
         pass

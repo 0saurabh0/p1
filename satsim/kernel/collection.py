@@ -8,7 +8,7 @@ class Collection(Object):
     def __init__(self):
         pass
 
-    def collection_at(self):
+    def collection_at(self, index_or_name):
         """ shall return the element with the given position or name,
         if no element exists with the given position or name, it returns None
         """

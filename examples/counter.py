@@ -40,7 +40,7 @@ class CounterModel(satsim.Model):
 
         self.scheduler = simulator.get_scheduler()
         self.scheduler.add_simulation_time_event(self.count_entrypoint, 1)
-        self.scheduler.add_simulation_time_event(self.log_entrypoint, 2, 1, 1)
+        self.scheduler.add_simulation_time_event(self.log_entrypoint, 2, 1.5, 2)
         self.scheduler.add_simulation_time_event(self.reset_entrypoint, 3)
 
         self.logger.log_info(self, "Counter Model is now connected")
@@ -64,6 +64,11 @@ simulator.initialise()
 
 print("Simulation started")
 simulator.run()
-time.sleep(1)  # run for some time
+
+# run for some time
+for i in range(10):
+    #simulator.get_scheduler().get_current_event_id()
+    time.sleep(1)
+
+print("Simulation completed")
 simulator.exit()
-print("Simulation finished")
