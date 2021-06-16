@@ -14,17 +14,23 @@ class CounterModel(satsim.Model):
         self.reset_entrypoint.execute = self.reset
         self.log_entrypoint = satsim.EntryPoint("Log Counter")
         self.log_entrypoint.execute = self.log_count
+        self.log_time_entrypoint = satsim.EntryPoint("Log Time")
+        self.log_time_entrypoint.execute = self.log_time
 
     def reset(self):
         print("Reset counter")
         self.counter = 0
 
     def count(self):
-        print("Increase counter")
         self.counter += 1
+        print("Increase counter. Value now:", self.counter)
 
     def log_count(self):
         print("Log counter:", self.counter)
+
+    def log_time(self):
+        time.sleep(3)
+        print("Current time:", self.time_keeper.get_simulation_time())
 
     def configure(self, logger, link_registry):
         if self._state != self.PUBLISHING:
@@ -38,7 +44,11 @@ class CounterModel(satsim.Model):
         if self._state != self.CONFIGURED:
             raise satsim.InvalidComponentState()
 
+        self.simulator = simulator
         self.scheduler = simulator.get_scheduler()
+        self.time_keeper = simulator.get_time_keeper()
+
+        self.scheduler.add_simulation_time_event(self.log_time_entrypoint, 0, 1, 7)
         self.scheduler.add_simulation_time_event(self.count_entrypoint, 1)
         self.scheduler.add_simulation_time_event(self.log_entrypoint, 2, 1.5, 2)
         self.scheduler.add_simulation_time_event(self.reset_entrypoint, 3)
@@ -67,7 +77,7 @@ simulator.run()
 
 # run for some time
 for i in range(10):
-    print("Current event", simulator.get_scheduler().get_current_event_id())
+    print("Current event:", simulator.get_scheduler().get_current_event_id())
     time.sleep(1)
 
 print("Simulation completed")

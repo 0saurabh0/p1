@@ -158,6 +158,7 @@ class Simulator(Composite, Publication):
         t.start()
 
     def _simulation_process(self):
+        self._time_keeper.set_simulation_time(0)
         while True:
             self._scheduler.current_event_id = None
 
@@ -177,6 +178,8 @@ class Simulator(Composite, Publication):
                     else:
                         event['simulation_time'] += event['cycle_time']
 
+            simulation_time = self._time_keeper.get_simulation_time()
+            self._time_keeper.set_simulation_time(simulation_time + 1)
             yield self.env.timeout(1)
 
     def hold(self, immediate=False):

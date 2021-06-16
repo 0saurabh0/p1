@@ -30,11 +30,11 @@ class TimeKeeper(Service):
     def get_mission_time(self):
         return self.mission_time
 
-    def set_simulation_time(self, ):
-        pass
+    def set_simulation_time(self, simulation_time):
+        self._simulation_time = simulation_time
 
     def get_simulation_time(self):
-        return self.simulation_time
+        return self._simulation_time
 
     def get_zulu_time(self):
         return self.zulu_time
