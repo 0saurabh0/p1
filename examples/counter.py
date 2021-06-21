@@ -22,14 +22,14 @@ class CounterModel(satsim.Model):
         self.counter = 0
 
     def count(self):
-        self.counter += 1
+        # self.counter += 1
+        self.counter = 2*self.time_keeper.get_simulation_time()
         print("Increase counter. Value now:", self.counter)
 
     def log_count(self):
         print("Log counter:", self.counter)
 
     def log_time(self):
-        time.sleep(3)
         print("Current time:", self.time_keeper.get_simulation_time())
 
     def configure(self, logger, link_registry):
@@ -49,7 +49,7 @@ class CounterModel(satsim.Model):
         self.time_keeper = simulator.get_time_keeper()
 
         self.scheduler.add_simulation_time_event(self.log_time_entrypoint, 0, 1, 7)
-        self.scheduler.add_simulation_time_event(self.count_entrypoint, 1)
+        self.scheduler.add_simulation_time_event(self.count_entrypoint, 1, 5, 1)
         self.scheduler.add_simulation_time_event(self.log_entrypoint, 2, 1.5, 2)
         self.scheduler.add_simulation_time_event(self.reset_entrypoint, 3)
 
