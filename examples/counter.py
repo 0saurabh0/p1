@@ -29,11 +29,8 @@ class Counter(satsim.Model):
 # create simulator
 simulator = satsim.Simulator()
 
-# create model instance
-counter = Counter("Counter", "A simple counter", simulator)
-
-# add to models container
-simulator.add_model(counter)
+# add models
+simulator.add_model(Counter("Counter", "A simple counter", simulator))
 
 # simulator setup
 simulator.publish()
@@ -51,4 +48,5 @@ for i in range(5):
     time.sleep(1)
 
 print("Simulation completed")
+simulator.hold()
 simulator.exit()
