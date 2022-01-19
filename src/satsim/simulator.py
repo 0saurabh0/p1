@@ -46,12 +46,12 @@ class Simulator(Composite, Publication):
 
         for service in self.get_container("Services").get_components():
             if service._state == Component.CREATED:
-                service.publish(self)
+                service._publish(self)
                 # TODO: call publish on all child components recursevly
 
         for model in self.get_container("Models").get_components():
             if model._state == Component.CREATED:
-                model.publish(self)
+                model._publish(self)
                 # TODO: call publish on all child components recursevly
 
     def configure(self):
@@ -60,16 +60,16 @@ class Simulator(Composite, Publication):
 
         for service in self.get_container("Services").get_components():
             if service._state == Component.CREATED:
-                service.publish(self)
+                service._publish(self)
             if service._state == Component.PUBLISHING:
-                service.configure(self._logger, self._link_registry)
+                service._configure(self._logger, self._link_registry)
             # TODO: do this all child components recursevly
 
         for model in self.get_container("Models").get_components():
             if model._state == Component.CREATED:
-                model.publish(self)
+                model._publish(self)
             if model._state == Component.PUBLISHING:
-                model.configure(self._logger, self._link_registry)
+                model._configure(self._logger, self._link_registry)
             # TODO: do this all child components recursevly
 
     def connect(self):
@@ -80,20 +80,20 @@ class Simulator(Composite, Publication):
 
         for service in self.get_container("Services").get_components():
             if service._state == Component.CREATED:
-                service.publish(self)
+                service._publish(self)
             if service._state == Component.PUBLISHING:
-                service.configure(self.logger, self.link_registry)
+                service._configure(self.logger, self.link_registry)
             if service._state == Component.CONFIGURED:
-                service.connect(self)
+                service._connect(self)
             # TODO: do this all child components recursevly
 
         for model in self.get_container("Models").get_components():
             if model._state == Component.CREATED:
-                model.publish(self)
+                model._publish(self)
             if model._state == Component.PUBLISHING:
-                model.configure(self.logger, self.link_registry)
+                model._configure(self.logger, self.link_registry)
             if model._state == Component.CONFIGURED:
-                model.connect(self)
+                model._connect(self)
             # TODO: do this all child components recursevly
 
         event_id = self._event_manager.query_event_id("LEAVE_CONNECTING")
