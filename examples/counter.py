@@ -21,6 +21,10 @@ class Counter(satsim.Model):
     def count(self):
         self._count += 1
 
+    def add(self, offset):
+        self._count += offset
+        return self._count
+
 
 # create simulator
 simulator = satsim.Simulator()
