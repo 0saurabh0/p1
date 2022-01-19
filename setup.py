@@ -1,18 +1,27 @@
-from setuptools import setup, find_packages
+import setuptools
 
 with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+    readme = fh.read()
 
-setup(
+setuptools.setup(
     name='satsim',
     version='0.0.1',
-    author_email="info@librecube.org",
-    description='Satellite Simulation Modelling Platform',
-    long_description=long_description,
+    description="ECSS-Based Satellite Simulation Modelling Platform",
+    long_description=readme,
     long_description_content_type="text/markdown",
-    url="https://gitlab.com/librecube/prototypes/python-satsim",
-    license='MIT',
-    python_requires='>=3.4',
-    packages=find_packages(exclude=['docs']),
-    install_requires=['simpy'],
+    url="https://xxxx",
+    author="LibreCube",
+    author_email="info@librecube.org",
+    license="GPL",
+    packages=setuptools.find_namespace_packages(where="src"),
+    package_dir={"": "src"},
+    python_requires=">=3.6",
+    install_requires=["simpy"],
+    include_package_data=True,
+    entry_points={
+        'console_scripts': [
+            'server=server:server',
+            'cli=cli:cli',
+        ]
+    }
 )

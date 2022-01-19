@@ -14,9 +14,9 @@ Clone the repository and then install via pip:
 ```
 $ git clone https://gitlab.com/librecube/prototypes/python-satsim
 $ cd python-satsim
-$ virtualenv venv
-$ . venv/bin/activate
-$ pip install -e .
+$ python -m venv venv
+$ source venv/bin/activate
+(venv) $ pip install -e .
 ```
 
 ## Example
