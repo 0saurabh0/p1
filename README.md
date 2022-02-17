@@ -23,7 +23,7 @@ $ source venv/bin/activate
 
 ```
 (venv) $ cd examples
-(venv) $ python counter.py
+(venv) $ python run.py counter
 ```
 
 ## Documentation
