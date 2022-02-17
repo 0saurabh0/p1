@@ -1,2 +1,2 @@
 from .kernel import *
-from .simulator import Simulator
+from .simulator import *

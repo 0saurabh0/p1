@@ -1,7 +1,7 @@
 import threading
 import enum
 
-import simpy.rt as sp
+import simpy
 
 from .kernel import Composite, ComponentState, Container
 from .kernel.services import Logger, TimeKeeper, EventManager, Scheduler,\
@@ -25,6 +25,12 @@ class SimulationState(enum.IntEnum):
     ABORTING = 9
 
 
+class SimulationTimeProgress(enum.IntEnum):
+    REALTIME = 1
+    ACCELERATED = 2
+    FREE_RUNNING = 3
+
+
 class Simulator(Composite):
 
     def __init__(self):
@@ -41,7 +47,7 @@ class Simulator(Composite):
 
         self._init_entry_points = []
 
-        self._env = sp.RealtimeEnvironment(factor=1, strict=False)
+        self._env = simpy.rt.RealtimeEnvironment(factor=1, strict=False)
         self._terminate = False
 
         self._state = SimulationState.BUILDING
@@ -184,9 +190,10 @@ class Simulator(Composite):
                     else:
                         event['simulation_time'] += event['cycle_time']
 
+            yield self._env.timeout(1)
+
             simulation_time = self._time_keeper.get_simulation_time()
             self._time_keeper.set_simulation_time(simulation_time + 1)
-            yield self._env.timeout(1)
 
     def hold(self, immediate=False):
         pass
@@ -252,3 +259,12 @@ class Simulator(Composite):
 
     def get_link_registry(self):
         return self._link_registry
+
+    def set_time_progress(self, progress, factor=None):
+        if progress == SimulationTimeProgress.REALTIME:
+            self._env = simpy.rt.RealtimeEnvironment(factor=1, strict=False)
+        elif progress == SimulationTimeProgress.ACCELERATED:
+            self._env = simpy.rt.RealtimeEnvironment(
+                factor=1/factor, strict=False)
+        elif progress == SimulationTimeProgress.FREE_RUNNING:
+            self._env = simpy.Environment()

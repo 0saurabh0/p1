@@ -19,11 +19,10 @@ class Scheduler(Service):
         self._simulator = simulator
         self._scheduled_events = {}
         self._immediate_events = {}
-        self.current_event_id = None
 
     def add_simulation_time_event(
             self, entry_point, simulation_time, cycle_time=0, repeat=0):
-        # if simulation_time.total_seconds() < 0: (before)
+
         if simulation_time < 0:
             raise InvalidEventTime()
 
