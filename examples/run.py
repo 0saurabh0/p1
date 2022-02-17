@@ -22,7 +22,6 @@ simulator.add_model(model.root)
 simulator.publish()
 simulator.configure()
 simulator.connect()
-simulator.initialise()
 
 # start executing simulation
 simulator.run()

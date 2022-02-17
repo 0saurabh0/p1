@@ -108,32 +108,19 @@ class Simulator(Composite):
                 model._connect(self)
             # TODO: do this all child components recursevly
 
-        event_id = self._event_manager.query_event_id("LEAVE_CONNECTING")
-        self._event_manager.emit(event_id)
-
-        self._state = SimulationState.INITIALISING
-
-        event_id = self._event_manager.query_event_id("ENTER_INITIALISING")
-        self._event_manager.emit(event_id)
-
-        for init_entry_point in self._init_entry_points:
-            init_entry_point()
-        self._init_entry_points = []
-
-        event_id = self._event_manager.query_event_id("LEAVE_INITIALISING")
-        self._event_manager.emit(event_id)
-
-        self._state = SimulationState.STANDBY
-
-        event_id = self._event_manager.query_event_id("ENTER_STANDBY")
-        self._event_manager.emit(event_id)
+        self.initialise()
 
     def initialise(self):
-        if self._state != SimulationState.STANDBY:
-            return
+        if self._state != SimulationState.CONNECTING:
+            event_id = self._event_manager.query_event_id("LEAVE_CONNECTING")
+            self._event_manager.emit(event_id)
 
-        event_id = self._event_manager.query_event_id("LEAVE_STANDBY")
-        self._event_manager.emit(event_id)
+        elif self._state != SimulationState.STANDBY:
+            event_id = self._event_manager.query_event_id("LEAVE_STANDBY")
+            self._event_manager.emit(event_id)
+
+        else:
+            return
 
         self._state = SimulationState.INITIALISING
 
