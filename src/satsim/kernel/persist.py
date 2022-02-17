@@ -1,10 +1,10 @@
 from .object import Object
 
 
-class Collection(Object):
+class Persist(Object):
 
-    def at(self, index_or_name):
+    def restore(self, reader):
         raise NotImplementedError
 
-    def size(self):
+    def store(self, writer):
         raise NotImplementedError

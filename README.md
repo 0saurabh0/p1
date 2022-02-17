@@ -21,7 +21,10 @@ $ source venv/bin/activate
 
 ## Example
 
-To be written...
+```
+(venv) $ cd examples
+(venv) $ python counter.py
+```
 
 ## Documentation
 
@@ -33,7 +36,7 @@ See [here](docs/README.md) for details on how to use SatSim module.
 - Source Code: https://gitlab.com/librecube/prototypes/python-satsim
 
 To learn more on how to successfully contribute please read the contributing
-information in the [LibreCube guidelines](https://gitlab.com/librecube/guidelines).
+information in the [LibreCube guidelines](https://librecube.gitlab.io/).
 
 ## Support
 

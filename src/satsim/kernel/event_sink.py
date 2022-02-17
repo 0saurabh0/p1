@@ -1,10 +1,10 @@
 from .object import Object
 
 
-class Collection(Object):
+class EventSink(Object):
 
-    def at(self, index_or_name):
+    def get_event_arg_type(self):
         raise NotImplementedError
 
-    def size(self):
+    def notify(self, sender, arg):
         raise NotImplementedError
