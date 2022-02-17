@@ -1,4 +1,16 @@
-from satsim import Service, InvalidEventTime, InvalidCycleTme
+from ..service import Service
+
+
+class InvalidEventTime(Exception):
+    pass
+
+
+class InvalidEventId(Exception):
+    pass
+
+
+class InvalidCycleTime(Exception):
+    pass
 
 
 class Scheduler(Service):
@@ -16,7 +28,7 @@ class Scheduler(Service):
             raise InvalidEventTime()
 
         elif repeat != 0 and cycle_time <= 0:
-            raise InvalidCycleTme()
+            raise InvalidCycleTime()
 
         else:
             event_id = self._simulator.get_event_manager().create_new_event()

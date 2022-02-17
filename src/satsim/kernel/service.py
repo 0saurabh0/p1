@@ -1,4 +1,4 @@
-from satsim import Component
+from .component import Component
 
 
 class Service(Component):

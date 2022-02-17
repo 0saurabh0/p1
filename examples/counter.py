@@ -7,11 +7,14 @@ class Counter(satsim.Model):
 
     def configure(self):
         self._count = 0
-        self.count_entrypoint = satsim.EntryPoint("Increase Counter", self.count)
-        self.reset_entrypoint = satsim.EntryPoint("Reset Counter", self.reset)
+        self.count_entrypoint =\
+            satsim.EntryPoint("Increase Counter", function=self.count)
+        self.reset_entrypoint =\
+            satsim.EntryPoint("Reset Counter", function=self.reset)
 
     def connect(self):
-        self.scheduler.add_simulation_time_event(self.count_entrypoint, 1, 1, 1)
+        self.scheduler.add_simulation_time_event(
+            self.count_entrypoint, simulation_time=1, cycle_time=1, repeat=1)
         self.scheduler.add_simulation_time_event(self.reset_entrypoint, 0)
         self.logger.log_info(self, "Counter Model is now connected")
 
@@ -26,11 +29,13 @@ class Counter(satsim.Model):
         return self._count
 
 
+counter = Counter("Counter", "A simple counter", None)
+
 # create simulator
 simulator = satsim.Simulator()
 
 # add models
-simulator.add_model(Counter("Counter", "A simple counter", simulator))
+simulator.add_model(counter)
 
 # simulator setup
 simulator.publish()

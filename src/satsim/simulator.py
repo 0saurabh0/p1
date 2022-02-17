@@ -1,14 +1,18 @@
 import threading
+import enum
 
 import simpy.rt as sp
 
-from satsim import Logger, TimeKeeper, EventManager, Scheduler, Resolver,\
-    LinkRegistry, Component, Composite, Container, Publication,\
-    InvalidSimulatorState
+from .kernel import Composite, ComponentState, Container
+from .kernel.services import Logger, TimeKeeper, EventManager, Scheduler,\
+    Resolver, LinkRegistry
 
 
-class Simulator(Composite, Publication):
+class InvalidSimulatorState(Exception):
+    pass
 
+
+class SimulationState(enum.IntEnum):
     BUILDING = 0
     CONNECTING = 1
     INITIALISING = 2
@@ -20,12 +24,14 @@ class Simulator(Composite, Publication):
     EXITING = 8
     ABORTING = 9
 
+
+class Simulator(Composite):
+
     def __init__(self):
         self._containers = [
             Container("Models", "", self),
             Container("Services", "", self)
         ]
-        # services
         self._logger = Logger(self)
         self._time_keeper = TimeKeeper(self)
         self._scheduler = Scheduler(self)
@@ -35,71 +41,71 @@ class Simulator(Composite, Publication):
 
         self._init_entry_points = []
 
-        self.env = sp.RealtimeEnvironment(factor=1, strict=False)
+        self._env = sp.RealtimeEnvironment(factor=1, strict=False)
         self._terminate = False
 
-        self._state = self.BUILDING
+        self._state = SimulationState.BUILDING
 
     def publish(self):
-        if self._state != self.BUILDING:
+        if self._state != SimulationState.BUILDING:
             return
 
         for service in self.get_container("Services").get_components():
-            if service._state == Component.CREATED:
+            if service._state == ComponentState.CREATED:
                 service._publish(self)
                 # TODO: call publish on all child components recursevly
 
         for model in self.get_container("Models").get_components():
-            if model._state == Component.CREATED:
+            if model._state == ComponentState.CREATED:
                 model._publish(self)
                 # TODO: call publish on all child components recursevly
 
     def configure(self):
-        if self._state != self.BUILDING:
+        if self._state != SimulationState.BUILDING:
             return
 
         for service in self.get_container("Services").get_components():
-            if service._state == Component.CREATED:
+            if service._state == ComponentState.CREATED:
                 service._publish(self)
-            if service._state == Component.PUBLISHING:
+            if service._state == ComponentState.PUBLISHING:
                 service._configure(self._logger, self._link_registry)
             # TODO: do this all child components recursevly
 
         for model in self.get_container("Models").get_components():
-            if model._state == Component.CREATED:
+            if model._state == ComponentState.CREATED:
                 model._publish(self)
-            if model._state == Component.PUBLISHING:
+            if model._state == ComponentState.PUBLISHING:
                 model._configure(self._logger, self._link_registry)
             # TODO: do this all child components recursevly
 
     def connect(self):
-        if self._state != self.BUILDING:
+        if self._state != SimulationState.BUILDING:
             return
 
-        self._state = self.CONNECTING
+        self._state = SimulationState.CONNECTING
 
         for service in self.get_container("Services").get_components():
-            if service._state == Component.CREATED:
+            if service._state == ComponentState.CREATED:
                 service._publish(self)
-            if service._state == Component.PUBLISHING:
+            if service._state == ComponentState.PUBLISHING:
                 service._configure(self.logger, self.link_registry)
-            if service._state == Component.CONFIGURED:
+            if service._state == ComponentState.CONFIGURED:
                 service._connect(self)
             # TODO: do this all child components recursevly
 
         for model in self.get_container("Models").get_components():
-            if model._state == Component.CREATED:
+            if model._state == ComponentState.CREATED:
                 model._publish(self)
-            if model._state == Component.PUBLISHING:
+            if model._state == ComponentState.PUBLISHING:
                 model._configure(self.logger, self.link_registry)
-            if model._state == Component.CONFIGURED:
+            if model._state == ComponentState.CONFIGURED:
                 model._connect(self)
             # TODO: do this all child components recursevly
 
         event_id = self._event_manager.query_event_id("LEAVE_CONNECTING")
         self._event_manager.emit(event_id)
 
-        self._state = self.INITIALISING
+        self._state = SimulationState.INITIALISING
 
         event_id = self._event_manager.query_event_id("ENTER_INITIALISING")
         self._event_manager.emit(event_id)
@@ -111,19 +117,19 @@ class Simulator(Composite, Publication):
         event_id = self._event_manager.query_event_id("LEAVE_INITIALISING")
         self._event_manager.emit(event_id)
 
-        self._state = self.STANDBY
+        self._state = SimulationState.STANDBY
 
         event_id = self._event_manager.query_event_id("ENTER_STANDBY")
         self._event_manager.emit(event_id)
 
     def initialise(self):
-        if self._state != self.STANDBY:
+        if self._state != SimulationState.STANDBY:
             return
 
         event_id = self._event_manager.query_event_id("LEAVE_STANDBY")
         self._event_manager.emit(event_id)
 
-        self._state = self.INITIALISING
+        self._state = SimulationState.INITIALISING
 
         event_id = self._event_manager.query_event_id("ENTER_INITIALISING")
         self._event_manager.emit(event_id)
@@ -135,26 +141,26 @@ class Simulator(Composite, Publication):
         event_id = self._event_manager.query_event_id("LEAVE_INITIALISING")
         self._event_manager.emit(event_id)
 
-        self._state = self.STANDBY
+        self._state = SimulationState.STANDBY
 
         event_id = self._event_manager.query_event_id("ENTER_STANDBY")
         self._event_manager.emit(event_id)
 
     def run(self):
-        if self._state != self.STANDBY:
+        if self._state != SimulationState.STANDBY:
             return
 
         event_id = self._event_manager.query_event_id("LEAVE_STANDBY")
         self._event_manager.emit(event_id)
 
-        self._state = self.EXECUTING
+        self._state = SimulationState.EXECUTING
 
         event_id = self._event_manager.query_event_id("ENTER_EXECUTING")
         self._event_manager.emit(event_id)
 
         # start the simulation
-        self.env.process(self._simulation_process())
-        t = threading.Thread(target=self.env.run)
+        self._env.process(self._simulation_process())
+        t = threading.Thread(target=self._env.run)
         t.start()
 
     def _simulation_process(self):
@@ -167,7 +173,7 @@ class Simulator(Composite, Publication):
             for event_id, event in sorted(
                     self._scheduler._scheduled_events.items()):
 
-                if self.env.now >= event['simulation_time']:
+                if self._env.now >= event['simulation_time']:
                     self._scheduler.current_event_id = event_id
                     event['entry_point'].execute()
                     if event['repeat'] > 0:
@@ -180,7 +186,7 @@ class Simulator(Composite, Publication):
 
             simulation_time = self._time_keeper.get_simulation_time()
             self._time_keeper.set_simulation_time(simulation_time + 1)
-            yield self.env.timeout(1)
+            yield self._env.timeout(1)
 
     def hold(self, immediate=False):
         pass
@@ -204,20 +210,25 @@ class Simulator(Composite, Publication):
         return self._state
 
     def add_init_entry_point(self, entry_point):
-        if self._state not in [self.BUILDING, self.CONNECTING, self.STANDBY]:
+        if self._state not in [
+                SimulationState.BUILDING,
+                SimulationState.CONNECTING,
+                SimulationState.STANDBY]:
             return
 
         self.init_entry_points.append(entry_point)
 
     def add_model(self, model):
         if self._state not in [
-                self.STANDBY, self.BUILDING,
-                self.CONNECTING, self.INITIALISING]:
+                SimulationState.STANDBY,
+                SimulationState.BUILDING,
+                SimulationState.CONNECTING,
+                SimulationState.INITIALISING]:
             raise InvalidSimulatorState()
         self.get_container("Models").add_component(model)
 
     def add_service(self, service):
-        if self._state not in self.BUILDING:
+        if self._state not in SimulationState.BUILDING:
             raise InvalidSimulatorState()
         self.services.append(service)
 

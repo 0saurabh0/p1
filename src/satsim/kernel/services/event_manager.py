@@ -1,53 +1,51 @@
-from satsim import Service, InvalidEventName, EntryPointAlreadySubscribed,\
-    InvalidEventId
+from ..service import Service
+
+
+class EntryPointAlreadySubscribed(Exception):
+    pass
+
+
+class InvalidEventId(Exception):
+    pass
+
+
+PREDEFINED_EVENTS = {
+    1: "LEAVE_CONNECTING",
+    2: "ENTER_INITIALISING",
+    3: "LEAVE_INITIALISING",
+    4: "ENTER_STANDBY",
+    5: "LEAVE_STANDBY",
+    6: "ENTER_EXECUTING",
+    7: "LEAVE_EXECUTING",
+    8: "ENTER_STORING",
+    9: "LEAVE_STORING",
+    10: "ENTER_RESTORING",
+    11: "LEAVE_RESTORING",
+    12: "ENTER_EXITING",
+    13: "ENTER_ABORTING",
+    14: "EPOCH_TIME_CHANGED",
+    15: "MISSION_TIME_CHANGED",
+    16: "ENTER_RECONNECTING",
+    17: "LEAVE_RECONNECTING",
+    18: "PRE_SIM_TIME_CHANGE",
+    19: "POST_SIM_TIME_CHANGE"
+}
 
 
 class EventManager(Service):
 
     def __init__(self, simulator):
         self._simulator = simulator
+
         self._event_entrypoint_pairs = []
-        self._events = {
-            1: "LEAVE_CONNECTING",
-            2: "ENTER_INITIALISING",
-            3: "LEAVE_INITIALISING",
-            4: "ENTER_STANDBY",
-            5: "LEAVE_STANDBY",
-            6: "ENTER_EXECUTING",
-            7: "LEAVE_EXECUTING",
-            8: "ENTER_STORING",
-            9: "LEAVE_STORING",
-            10: "ENTER_RESTORING",
-            11: "LEAVE_RESTORING",
-            12: "ENTER_EXITING",
-            13: "ENTER_ABORTING",
-            14: "EPOCH_TIME_CHANGED",
-            15: "MISSION_TIME_CHANGED",
-            16: "ENTER_RECONNECTING",
-            17: "LEAVE_RECONNECTING",
-            18: "PRE_SIM_TIME_CHANGE",
-            19: "POST_SIM_TIME_CHANGE"
-        }
+        self._events = PREDEFINED_EVENTS
         self._event_count = len(self._events)
 
     def query_event_id(self, event_name):
-        """
-        Input
-        event_name: has to be a string corresponding to the event id (the value
-        of the event dictionary)
-        Output:
-        the event id (number)
-        """
-        if not event_name.strip():
-            raise InvalidEventName()
-
-        for key, value in self._events.items():
-            # print(key, value)
-            if event_name == value:
-                # print(key)
-                return key
-        else:
-            return None
+        for id, name in self._events.items():
+            if event_name == name:
+                return id
+        return None
 
     def subscribe(self, event_id, entry_point):
         if (event_id, entry_point) in self._event_entrypoint_pairs:

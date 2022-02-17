@@ -1,10 +1,11 @@
-from satsim import Service
+from ..service import Service
 
 
 class TimeKeeper(Service):
 
     def __init__(self, simulator):
         self._simulator = simulator
+
         self._epoch_time = None
         self._mission_start_time = None
         self._mission_time = None
