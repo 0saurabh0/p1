@@ -17,7 +17,7 @@ class ComponentState(enum.IntEnum):
 
 class Component(Object):
 
-    def __init__(self, name, description, parent=None):
+    def __init__(self, name, description, parent):
         super().__init__(name, description, parent)
 
         self.simulator = None

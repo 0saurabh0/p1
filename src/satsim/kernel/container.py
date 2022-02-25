@@ -19,7 +19,7 @@ class NotContained(Exception):
 
 class Container(Object):
 
-    def __init__(self, name, description="", parent=None):
+    def __init__(self, name, description, parent):
         super().__init__(name, description, parent)
         self._components = []
         self._max_count = None

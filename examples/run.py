@@ -24,11 +24,13 @@ simulator.configure()
 simulator.connect()
 
 # start executing simulation
-simulator.run()
 print("Simulation running...")
-
-# run for some time
-input("Press <Enter> to stop\n")
+print("Press <Enter> to stop")
+print()
+simulator.run()
+input()
+model.root.get_hot_object("HO_1").set_status(False)
+input()
 
 print("Simulation completed")
 simulator.hold()

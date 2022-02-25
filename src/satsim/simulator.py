@@ -3,7 +3,7 @@ import enum
 
 import simpy
 
-from .kernel import Composite, ComponentState, Container
+from .kernel import Composite, ComponentState, Container, Publication
 from .kernel.services import Logger, TimeKeeper, EventManager, Scheduler,\
     Resolver, LinkRegistry
 
@@ -31,7 +31,7 @@ class SimulationTimeProgress(enum.IntEnum):
     FREE_RUNNING = 3
 
 
-class Simulator(Composite):
+class Simulator(Composite, Publication):
 
     def __init__(self):
         self._containers = [

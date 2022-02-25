@@ -2,7 +2,7 @@
 
 class Object:
 
-    def __init__(self, name, description="", parent=None):
+    def __init__(self, name, description, parent):
         self._name = name
         self._description = description
         self._parent = parent

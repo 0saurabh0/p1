@@ -7,7 +7,7 @@ class NotReferenced(Exception):
 
 class Reference(Object):
 
-    def __init__(self, name, description="", parent=None):
+    def __init__(self, name, description, parent):
         super().__init__(name, description, parent)
         self._components = []
 
