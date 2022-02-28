@@ -18,12 +18,6 @@ class ThermalNetwork(satsim.Component, satsim.Composite):
 
         self._containers = []
 
-    def add_hot_objects(self, hot_objects):
-        self._containers.append(hot_objects)
-
-    def add_thermal_nodes(self, thermal_nodes):
-        self._containers.append(thermal_nodes)
-
     def get_delta_time(self):
         return self.delta_time
 
@@ -102,9 +96,6 @@ class ThermalNode(satsim.Component, satsim.Composite):
 
         self._containers = []
 
-    def add_related_hot_objects(self, related_hot_objects):
-        self._containers.append(related_hot_objects)
-
     def get_temperature(self):
         return self._current_temperature
 
@@ -114,13 +105,15 @@ class ThermalNode(satsim.Component, satsim.Composite):
     def update_temperature(self, delta_time):
         self._steady_state_temperature = self._base_temperature
 
+        maximum_effect = 0
+
         for container in self._containers:
             if isinstance(container, RelatedHotObjects):
                 for rel_ho in container.get_components():
+                    if rel_ho.get_hot_object().get_status() is True:
+                        maximum_effect += rel_ho.get_maximum_effect()
 
-        for ho in self.get_container(RELATED_HOT_OBJECTS).get_components():
-            if ho.get_status() is True:
-                self._steady_state_temperature += ho.get_maximum_effect()
+        self._steady_state_temperature += maximum_effect
 
         if self._current_temperature < self._steady_state_temperature:
             new_temperature =\
@@ -173,7 +166,7 @@ class ThermalNode(satsim.Component, satsim.Composite):
             self._scale_factor)
 
 
-class ThermalNodes(satsim.Component, satsim.Composite):
+class ThermalNodes(satsim.Component, satsim.Container):
     pass
 
 
@@ -182,11 +175,17 @@ class RelatedHotObject(satsim.Component):
     def __init__(self, name, description, parent):
         super().__init__(name, description, parent)
 
-        self._hot_object_name = None
+        self._hot_object = None
         self._maximum_effect = None
 
+    def get_hot_object(self):
+        return self._hot_object
 
-class RelatedHotObjects(satsim.Component, satsim.Composite):
+    def get_maximum_effect(self):
+        return self._maximum_effect
+
+
+class RelatedHotObjects(satsim.Component, satsim.Container):
     pass
 
 
@@ -213,7 +212,7 @@ class HotObject(satsim.Component):
             self._status)
 
 
-class HotObjects(satsim.Component, satsim.Composite):
+class HotObjects(satsim.Component, satsim.Container):
     pass
 
 
@@ -254,9 +253,14 @@ def create_hot_object(
     return hot_object
 
 
-def set_related_hot_objects(thermal_node, hot_objects):
-    for hot_object in hot_objects:
-        thermal_node.add_related_hot_object(hot_object)
+def create_related_hot_object(
+        name, description, parent,
+        hot_object,
+        maximum_effect):
+    related_hot_object = RelatedHotObject(name, description, parent)
+    related_hot_object._hot_object = hot_object
+    related_hot_object._maximum_effect = maximum_effect
+    return related_hot_object
 
 
 ###############################################################################
@@ -267,19 +271,13 @@ thermal_network = create_thermal_network(
     delta_time=1)
 
 hot_objects = HotObjects("HotObjects", "", thermal_network)
-
 HO_1 = create_hot_object(
     "HO_1", "", hot_objects,
     status=True)
-HO_2 = create_hot_object(
-    "HO_2", "", hot_objects,
-    status=True)
-
 hot_objects.add_component(HO_1)
-hot_objects.add_component(HO_2)
+thermal_network.add_container(hot_objects)
 
 thermal_nodes = ThermalNodes("ThermalNodes", "", thermal_network)
-
 TN_1 = create_thermal_node(
     "TN_1", "", thermal_nodes,
     base_temperature=20,
@@ -288,21 +286,16 @@ TN_1 = create_thermal_node(
     fall_rate=1,
     offset=0,
     scale=1)
-TN_2 = create_thermal_node(
-    "TN_2", "", thermal_nodes,
-    base_temperature=20,
-    current_temperature=25,
-    rise_rate=1,
-    fall_rate=1,
-    offset=0,
-    scale=1)
-
 thermal_nodes.add_component(TN_1)
-thermal_nodes.add_component(TN_2)
+thermal_network.add_container(thermal_nodes)
 
-REL_HO_1 = RelatedHotObject("RelatedHotObject"
-#set_related_hot_objects(TN_1, [HO_1])
+related_hot_objects = RelatedHotObjects("RelatedHotObjects", "", TN_1)
+TN_1_HO_1 = create_related_hot_object(
+    "TN_1_HO_1", "", related_hot_objects,
+    HO_1,
+    20)
+related_hot_objects.add_component(TN_1_HO_1)
+TN_1.add_container(related_hot_objects)
 
-thermal_network.add_hot_objects(hot_objects)
-thermal_network.add_thermal_nodes(thermal_nodes)
+
 root = thermal_network

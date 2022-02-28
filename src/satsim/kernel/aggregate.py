@@ -1,7 +1,7 @@
 from .object import Object
 
 
-class Aggregation(Object):
+class Aggregate(Object):
 
     def get_reference(self, name):
         if hasattr(self, '_references'):

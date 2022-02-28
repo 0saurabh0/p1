@@ -14,3 +14,6 @@ class Composite(Object):
         if hasattr(self, '_containers'):
             return self._containers
         return list()
+
+    def add_container(self, container):
+        self._containers.append(container)
